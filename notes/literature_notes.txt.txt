@@ -1,0 +1,261 @@
+================================================================================
+LITERATURE REVIEW NOTES
+Project: Home-Lab SOC with Wazuh: Detection Engineering & Automated Response
+================================================================================
+Each entry matches its corresponding PDF in literature/pdfs/<key>.pdf and its
+full bibliographic record in literature/references.bib.
+
+
+--------------------------------------------------------------------------------
+SECTION 1: SIEM, OPEN-SOURCE SOC, AND WAZUH / OSSEC ARCHITECTURE
+--------------------------------------------------------------------------------
+
+[1] Key: gonzalez2021siem
+    File: pdfs/gonzalez2021siem.pdf
+    Source: Gonzalez-Granadillo et al. (2021) - Security Information and Event
+            Management (SIEM): Analysis, Trends, and Usage in Critical
+            Infrastructures (Sensors)
+    Relevant Information:
+      - Defines the core functional pipeline of a SIEM: log collection,
+        normalization, storage, correlation, alerting, and reporting.
+      - Compares open-source and commercial SIEM solutions in terms of cost,
+        extensibility, and deployment complexity.
+    Used For:
+      - Background / State of the Art: Establishes standard SIEM terminology and
+        justifies selecting an open-source SIEM over enterprise commercial tools
+        for a reproducible, zero-cost home-lab SOC.
+
+[2] Key: chamkar2025wazuh
+    File: pdfs/chamkar2025wazuh.pdf
+    Source: Chamkar et al. (2025) - Improving Threat Detection in Wazuh Using
+            Machine Learning Techniques (Journal of Cybersecurity and Privacy)
+    Relevant Information:
+      - Evaluates Wazuh as an open-source SIEM/HIDS platform and highlights a
+        key operational drawback: high false-positive rates in rule-based
+        detection.
+      - Measures Wazuh end-to-end processing latency and event-per-second (EPS)
+        throughput under load.
+    Used For:
+      - Problem Statement & Evaluation: Justifies tracking false-positive rates
+        alongside detection coverage after adding custom rules, and provides
+        evaluation ideas for measuring detection latency and resource overhead.
+
+[3] Key: teixeira2019ossec
+    File: pdfs/teixeira2019ossec.pdf
+    Source: Teixeira et al. (2019) - OSSEC IDS Extension to Improve Log Analysis
+            and Override False Positive or Negative Detections (JSAN)
+    Relevant Information:
+      - Explains the Agent-Manager internals of OSSEC (the foundation of Wazuh),
+        including Logcollector, Analysisd (decoders/rules), and Execd (Active
+        Response).
+      - Analyzes the risk of automated IP blocking triggered by false positives,
+        which can inadvertently lock out legitimate hosts.
+    Used For:
+      - System Architecture & Active Response Design: Documents how Wazuh agents
+        and managers interact and justifies making the custom IP-blocking script
+        time-limited and automatically reversible.
+
+[4] Key: alboushy2026smartsiem
+    File: pdfs/alboushy2026smartsiem.pdf
+    Source: Alboushy et al. (2026) - Context-Aware Web Attack Detection in
+            Open-Source SIEM Systems via MITRE ATT&CK-Enriched Behavioral
+            Profiling (arXiv:2605.13337)
+    Relevant Information:
+      - Demonstrates Wazuh log normalization, alert severity levels (noting that
+        level 0 rules are suppressed by default), and MITRE ATT&CK ID tagging.
+      - Shows why single-event stateless rules struggle with multi-step attacks
+        from the same source IP and evaluates detection against mixed normal and
+        attack traffic.
+    Used For:
+      - Related Work & Custom Rule Design: Supports writing frequency-based and
+        stateful correlation rules in Wazuh (grouping repeated events per source
+        IP) and evaluating custom rules against normal background activity.
+
+
+--------------------------------------------------------------------------------
+SECTION 2: MITRE ATT&CK, ADVERSARY EMULATION, AND GAP ANALYSIS
+--------------------------------------------------------------------------------
+
+[5] Key: strom2020attack
+    File: pdfs/strom2020attack.pdf
+    Source: Strom et al. (2020) - MITRE ATT&CK: Design and Philosophy (MITRE)
+    Relevant Information:
+      - Foundational reference defining MITRE ATT&CK's taxonomy of tactics,
+        techniques, and sub-techniques, including its Windows post-compromise
+        focus.
+      - Details core use cases: adversary emulation, behavioral analytics, and
+        defensive gap assessment.
+    Used For:
+      - Theoretical Foundation / Methodology: Authoritative citation defining
+        MITRE ATT&CK and justifying its use as the standard catalog for
+        selecting simulated attacks.
+
+[6] Key: strom2017finding
+    File: pdfs/strom2017finding.pdf
+    Source: Strom et al. (2017) - Finding Cyber Threats with ATT&CK-Based
+            Analytics (MITRE MTR170202)
+    Relevant Information:
+      - Introduces threat-based behavioral detection, noting that attackers
+        frequently abuse native Windows utilities ("living off the land").
+      - Emphasizes validating detections by emulating adversary behaviors inside
+        the actual monitored environment.
+    Used For:
+      - Core Methodology: Directly validates the thesis workflow of running
+        simulated techniques, identifying baseline detection misses, engineering
+        behavioral rules, and re-testing.
+
+[7] Key: chamkar2024soc
+    File: pdfs/chamkar2024soc.pdf
+    Source: Chamkar et al. (2024) - Security Operations Centers: Use Case Best
+            Practices, Coverage, and Gap Analysis Based on MITRE ATT&CK (JCP)
+    Relevant Information:
+      - Defines the SOC use case lifecycle (Rules, Logic, Action) and a Coverage
+        Gap Model linking collected log sources to MITRE ATT&CK techniques.
+      - Uses Atomic Red Team to test coverage gaps and guide rule tuning to
+        minimize false alarms.
+    Used For:
+      - Core Methodology (Gap Analysis): Provides a peer-reviewed framework that
+        closely mirrors the thesis workflow (baseline test, gap identification
+        with Atomic Red Team, custom rule/action creation, before-and-after
+        comparison).
+
+[8] Key: lupinacci2026trace2attack
+    File: pdfs/lupinacci2026trace2attack.pdf
+    Source: Lupinacci et al. (2026) - A Graph-Based Approach for Mapping
+            Kernel-Level Telemetry to MITRE ATT&CK (arXiv:2609.12841)
+    Relevant Information:
+      - Documents the structure of Atomic Red Team and Invoke-AtomicRedTeam
+        (technique definitions, prerequisites, execution commands, and cleanup
+        commands) for repeatable telemetry generation (e.g., T1055).
+    Used For:
+      - Experimental Setup & Reproducibility: Serves as an academic reference
+        justifying Atomic Red Team as a controlled, repeatable adversary
+        emulation tool rather than ad-hoc attack scripts.
+
+
+--------------------------------------------------------------------------------
+SECTION 3: WINDOWS TELEMETRY (SYSMON), LOG MANAGEMENT, AND RULE ENGINEERING
+--------------------------------------------------------------------------------
+
+[9] Key: kent2006nist80092
+    File: pdfs/kent2006nist80092.pdf
+    Source: Kent & Souppaya (2006) - Guide to Computer Security Log Management
+            (NIST SP 800-92)
+    Relevant Information:
+      - Standardizes core log management concepts: generation, secure
+        transmission, centralized storage, parsing, timestamp synchronization,
+        and log volume management.
+    Used For:
+      - Background / Log Pipeline Architecture: Provides formal standards-based
+        terminology and best practices for shipping Windows endpoint logs to the
+        Wazuh server.
+
+[10] Key: mavroeidis2018sysmon
+     File: pdfs/mavroeidis2018sysmon.pdf
+     Source: Mavroeidis & Josang (2018) - Data-Driven Threat Hunting Using
+             Sysmon (ICCSP 2018)
+     Relevant Information:
+       - Explains why default Windows Event Logs lack sufficient visibility for
+         detecting post-exploitation techniques.
+       - Details how Microsoft Sysmon enriches endpoint telemetry with process
+         creation, parent-child process trees, file hashes, and network/DNS
+         events.
+     Used For:
+       - Telemetry Selection: Justifies deploying Sysmon alongside the Wazuh
+         Windows agent to supply the granular events required by custom
+         detection rules.
+
+[11] Key: thomas2022hespids
+     File: pdfs/thomas2022hespids.pdf
+     Source: Thomas et al. (2022) - HESPIDS: A Hierarchical and Extensible
+             System for Process Injection Detection Using Sysmon (HICSS 2022)
+     Relevant Information:
+       - Implements a Windows lab using a tailored Sysmon configuration and
+         tests custom detection logic against Atomic Red Team process injection
+         techniques (T1055).
+       - Demonstrates how proper Sysmon event filtering prevents false positives
+         across thousands of benign Windows background events.
+     Used For:
+       - Implementation & False-Positive Control: Supports the Windows + Sysmon
+         + Atomic Red Team lab design and explains why tuning Sysmon rules is
+         essential for keeping false alarms low.
+
+[12] Key: shukla2025rulegenie
+     File: pdfs/shukla2025rulegenie.pdf
+     Source: Shukla et al. (2025) - RuleGenie: SIEM Detection Rule Set
+             Optimization (arXiv:2505.06701)
+     Relevant Information:
+       - Examines how overly broad or redundant SIEM rules inflate false-positive
+         rates.
+       - Defines concrete evaluation criteria for rule quality, including
+         conditional scoping, filtering precision, recall, and false-positive
+         rate.
+     Used For:
+       - Detection Engineering & Evaluation Metrics: Supplies the formal metrics
+         (detection rate/recall, precision, false-positive count) used to
+         compare the baseline Wazuh ruleset against custom rules.
+
+
+--------------------------------------------------------------------------------
+SECTION 4: INCIDENT RESPONSE, FALSE POSITIVES, AUTOMATION, AND TESTBEDS
+--------------------------------------------------------------------------------
+
+[13] Key: nelson2025nist80061r3
+     File: pdfs/nelson2025nist80061r3.pdf
+     Source: Nelson et al. (2025) - Incident Response Recommendations and
+             Considerations for Cybersecurity Risk Management: A CSF 2.0
+             Community Profile (NIST SP 800-61 Rev. 3)
+     Relevant Information:
+       - Current NIST incident response guidance aligned with CSF 2.0 (Detect,
+         Respond, Recover).
+       - Covers distinguishing events from incidents, accounting for known false
+         positives, executing containment actions, and iterative improvement.
+     Used For:
+       - Incident Response & Remediation: Anchors the automated containment
+         scripts (temporary IP blocking) and iterative rule-tuning loop in the
+         latest NIST incident response standard.
+
+[14] Key: alahmadi2022falsepositives
+     File: pdfs/alahmadi2022falsepositives.pdf
+     Source: Alahmadi et al. (2022) - 99% False Positives: A Qualitative Study
+             of SOC Analysts' Perspectives on Security Alarms (USENIX Security)
+     Relevant Information:
+       - Empirical study of practicing SOC analysts demonstrating how excessive
+         false positives cause alert fatigue, missed real attacks, and loss of
+         trust in SIEM alerts.
+       - Highlights the importance of environmental context when validating
+         alarms.
+     Used For:
+       - Motivation & Evaluation Discussion: Top-tier venue evidence proving why
+         evaluating false alarms introduced by new custom rules is critical for
+         a realistic SOC evaluation.
+
+[15] Key: kremer2023icsecure
+     File: pdfs/kremer2023icsecure.pdf
+     Source: Kremer et al. (2023) - IC-SECURE: Intelligent System for Assisting
+             Security Experts in Generating Playbooks for Automated Incident
+             Response (arXiv:2311.03825)
+     Relevant Information:
+       - Formalizes automated incident response playbooks and SOAR workflows
+         (referencing open-source tools like Shuffle) where SIEM alerts trigger
+         actions such as firewall IP blocking, process termination, or file
+         isolation.
+     Used For:
+       - Automated Response & Future Work: Places the custom Wazuh Active
+         Response scripts in the broader SOAR/automated remediation context and
+         supports discussing full SOAR integration (e.g., Shuffle) as future
+         work.
+
+[16] Key: ukwandu2020cyberranges
+     File: pdfs/ukwandu2020cyberranges.pdf
+     Source: Ukwandu et al. (2020) - A Review of Cyber-Ranges and Test-Beds:
+             Current and Future Trends (Sensors)
+     Relevant Information:
+       - Surveys virtualized cyber ranges and security testbeds, classifying
+         architectures, scenario execution methods, and deployment practices for
+         safe attack simulation.
+     Used For:
+       - Lab Design & Reproducibility: Justifies constructing an isolated,
+         virtualized home-lab SOC testbed so experiments remain safe,
+         repeatable, and easily rebuilt by others to reproduce the thesis
+         results.
